@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: 83fd54b
+_commit: 08ceaa
 _src_path: gh:34j/pypackage-template
 add_me_as_contributor: false
 cli_name: shift-nth-row-n-steps
