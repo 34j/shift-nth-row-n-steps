@@ -16,6 +16,13 @@ changelog
 contributing
 ```
 
+```{toctree}
+:caption: API Reference
+:maxdepth: 2
+
+shift_nth_row_n_steps
+```
+
 ```{include} ../README.md
 
 ```
