@@ -1,0 +1,26 @@
+# Changes here will be overwritten by Copier
+_commit: 83fd54b
+_src_path: gh:34j/pypackage-template
+add_me_as_contributor: true
+cli_name: shift-nth-row-n-steps
+copyright_year: '2024'
+documentation: true
+email: 34j.github@proton.me
+full_name: 34j
+github_username: 34j
+has_cli: true
+initial_commit: true
+is_django_package: false
+open_source_license: MIT
+open_with_vscode: true
+package_name: shift_nth_row_n_steps
+project_name: Shift Nth Row N Steps
+project_short_description: Shift Nth row N steps in NumPy / PyTorch / TensorFlow /
+    JAX
+project_slug: shift-nth-row-n-steps
+run_poetry_install: true
+setup_github: true
+setup_pre_commit: true
+setup_venv: true
+venv_version: '3.11'
+
