@@ -7,13 +7,37 @@ from ._main import shift_nth_row_n_steps, shift_nth_row_n_steps_for_loop
 
 app = typer.Typer()
 
-ivy.set_backend("torch")
-
 
 @app.command()
-def benchmark() -> None:
-    """Add the arguments and print the result."""
-    for n in 2 ** ivy.arange(2, 10):
+def benchmark(
+    backend: str = typer.Option("numpy"),
+    device: str = typer.Option("cpu"),
+    dtype: str = typer.Option("float32"),
+    n_end: int = typer.Option(10),
+) -> None:
+    """
+    Benchmark the two implementations of the function.
+
+    Parameters
+    ----------
+    backend : str, optional
+        The backend to use, by default typer.Option("numpy")
+    device : str, optional
+        The device to use, by default typer.Option("cpu")
+    dtype : str, optional
+        The dtype to use, by default typer.Option("float32")
+    n_end : int, optional
+        The maximum power of 2 to use, by default typer.Option(10)
+
+    """
+    if device == "gpu":
+        device = "gpu:0"
+    elif device == "tpu":
+        device = "tpu:0"
+    ivy.set_backend(backend)
+    ivy.set_default_device(device)
+    ivy.set_default_float_dtype(ivy.FloatDtype(dtype))
+    for n in 2 ** ivy.arange(0, n_end):
         input = ivy.random.random_uniform(shape=(n, n))
         with timer() as t1:
             shift_nth_row_n_steps(input)
