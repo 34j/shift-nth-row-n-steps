@@ -32,7 +32,7 @@ shift-nth-row-n-steps = "shift_nth_row_n_steps.cli:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 rich = ">=10"
-typer = { extras = [ "all" ], version = "^0.9.0" }
+typer = { extras = [ "all" ], version = "^0.12.0" }
 ivy = "^0.0.9.15"
 cm-time = "^0.1.2"
 astunparse = "^1.6.3"
