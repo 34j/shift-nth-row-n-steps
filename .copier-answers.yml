@@ -1,7 +1,6 @@
 # Changes here will be overwritten by Copier
-_commit: 83fd54b
+_commit: 99c49ec
 _src_path: gh:34j/pypackage-template
-add_me_as_contributor: false
 cli_name: shift-nth-row-n-steps
 copyright_year: '2024'
 documentation: true
@@ -18,9 +17,5 @@ project_name: Shift Nth Row N Steps
 project_short_description: Shift Nth row N steps in NumPy / PyTorch / TensorFlow /
     JAX
 project_slug: shift-nth-row-n-steps
-run_poetry_install: false
-setup_github: false
-setup_pre_commit: false
 setup_venv: false
-venv_version: '3.11'
 
