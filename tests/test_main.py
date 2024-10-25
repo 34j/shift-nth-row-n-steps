@@ -1,3 +1,6 @@
+import importlib.util
+from unittest import SkipTest
+
 import ivy
 import pytest
 
@@ -7,7 +10,12 @@ from shift_nth_row_n_steps._main import (
     shift_nth_row_n_steps_for_loop,
 )
 
-ivy.set_backend("numpy")
+
+@pytest.fixture(autouse=True, params=["numpy", "jax", "torch"], scope="session")
+def setup(request: pytest.FixtureRequest) -> None:
+    if importlib.util.find_spec(request.param) is None:
+        raise SkipTest(f"{request.param} is not installed")
+    ivy.set_backend(request.param)
 
 
 def test_shift_nth_row_n_steps_match() -> None:
