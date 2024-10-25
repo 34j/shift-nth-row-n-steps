@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.3 (2024-10-25)
+
+### Bug fixes
+
+- Expose torch-like functions, add more tests (#12) ([`3458aad`](https://github.com/34j/shift-nth-row-n-steps/commit/3458aad340b25e9a83735c25b1cb4af8cb9772f5))
+
 ## v0.1.2 (2024-10-25)
 
 ### Bug fixes
