@@ -5,10 +5,10 @@ import ivy
 import pytest
 
 from shift_nth_row_n_steps._main import (
-    select,
     shift_nth_row_n_steps,
     shift_nth_row_n_steps_for_loop,
 )
+from shift_nth_row_n_steps._torch_like import select
 
 
 @pytest.fixture(autouse=True, params=["numpy", "jax", "torch"], scope="session")
