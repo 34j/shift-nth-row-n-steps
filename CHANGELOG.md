@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 (2024-10-25)
+
+### Bug fixes
+
+- Use `axis...` instead of `dim...`, fix typing to support `nativearray`, add more tests (#11) ([`4e117c9`](https://github.com/34j/shift-nth-row-n-steps/commit/4e117c93babd0344a527ea1416ee40d59f7bd00d))
+
 ## v0.1.1 (2024-10-24)
 
 ### Bug fixes
