@@ -6,7 +6,7 @@ import pytest
 from shift_nth_row_n_steps import narrow, select
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True, scope="session")
 def setup() -> None:
     if importlib.util.find_spec("torch") is None:
         raise SkipTest("torch is not installed")
