@@ -3,6 +3,7 @@ from unittest import SkipTest
 
 import ivy
 import pytest
+from ivy_tests.test_ivy.helpers.assertions import assert_all_close
 
 from shift_nth_row_n_steps._main import (
     shift_nth_row_n_steps,
@@ -21,8 +22,14 @@ def setup(request: pytest.FixtureRequest) -> None:
 def test_shift_nth_row_n_steps_match() -> None:
     input = ivy.array([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
     expected = ivy.array([[[1, 2, 3], [0, 4, 5], [0, 0, 7]]])
-    assert ivy.array_equal(shift_nth_row_n_steps(input, cut_padding=True), expected)
-    assert ivy.array_equal(shift_nth_row_n_steps_for_loop(input), expected)
+    assert_all_close(
+        shift_nth_row_n_steps(input, cut_padding=True),
+        expected,
+        ivy.current_backend_str,
+    )
+    assert_all_close(
+        shift_nth_row_n_steps_for_loop(input), expected, ivy.current_backend_str
+    )
 
 
 @pytest.mark.parametrize(
@@ -37,7 +44,11 @@ def test_shift_nth_row_n_steps(
 ) -> None:
     array = ivy.ones(shape)
     shift_nth_row_n_steps(
-        array, axis_row=axis_row, axis_shift=axis_shift, cut_padding=cut_padding
+        array,
+        axis_row=axis_row,
+        axis_shift=axis_shift,
+        cut_padding=cut_padding,
+        padding_constant_values=0.1,
     )
 
 
@@ -59,7 +70,7 @@ def test_shift_nth_row_n_steps_index(
     assert res.shape[:axis_shift] == array.shape[:axis_shift]
     if axis_shift != -1:
         assert res.shape[axis_shift + 1 :] == array.shape[axis_shift + 1 :]
-    assert ivy.allclose(
+    assert_all_close(
         select(
             select(array, index[0], axis=axis_row).expand_dims(axis=axis_row),
             index[1],
@@ -70,4 +81,23 @@ def test_shift_nth_row_n_steps_index(
             index[0] + index[1],
             axis=axis_shift,
         ),
-    ), f"{array=}, {res=}"
+        ivy.current_backend_str,
+    )
+
+
+def test_custom_padding() -> None:
+    raise SkipTest("Not implemented yet")
+    n = 4  # type: ignore
+    array = ivy.random.random_uniform(shape=(n,)).expand_dims(axis=0).repeat(n, axis=0)
+    res_const = shift_nth_row_n_steps(
+        array,
+        axis_row=-2,
+        axis_shift=-1,
+        cut_padding=True,
+        padding_mode="constant",
+    )
+    res_const = res_const + res_const.T - res_const * ivy.eye(res_const.shape[-1])
+    res_wrap = shift_nth_row_n_steps(
+        array, axis_row=-2, axis_shift=-1, cut_padding=True, padding_mode="reflect"
+    )
+    assert_all_close(res_const, res_wrap, ivy.current_backend_str)

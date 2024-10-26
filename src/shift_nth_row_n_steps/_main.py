@@ -1,4 +1,5 @@
 import warnings
+from typing import Literal
 
 import ivy
 from ivy import Array, NativeArray
@@ -42,9 +43,10 @@ def shift_nth_row_n_steps_for_loop(
         row_cut = take_slice(row, 0, row_len - i, axis=axis_shift)
         zero_shape = list(ivy.shape(row))
         zero_shape[axis_shift] = i
-        output = ivy.concat([ivy.zeros(zero_shape), row_cut], axis=axis_shift).squeeze(
-            axis=axis_row
-        )
+        output = ivy.concat(
+            [ivy.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
+            axis=axis_shift,
+        ).squeeze(axis=axis_row)
         outputs.append(output)
     output = ivy.stack(outputs, axis=axis_row)
     return output
@@ -56,6 +58,8 @@ def shift_nth_row_n_steps(
     axis_row: int = -2,
     axis_shift: int = -1,
     cut_padding: bool = False,
+    padding_mode: Literal["constant", "wrap"] = "constant",
+    padding_constant_values: float = 0,
 ) -> Array:
     """
     Shifts the nth row n steps to the right.
@@ -70,6 +74,20 @@ def shift_nth_row_n_steps(
         The axis of the shift, by default -1
     cut_padding : bool, optional
         Whether to cut additional columns, by default False
+    padding_mode : Literal["constant", "wrap"], optional
+        The padding mode, by default "constant"
+        - constant -> shift + fill
+            (result[i,j] = a[i,j-i] if j >= i else padding_constant_values)
+        - wrap -> shift + roll
+            (a[i,j] = b[i] then result[i,j] = b[(j-i)%len(b)])
+        - reflect -> shift + symmetric
+            (a[i,j] = b[i] then result[i,j] = b[abs(j-i)]
+            not implemented,
+            do `result + result.T - result * ivy.eye(result.shape[-1])` instead
+            (current behavior aims to support cut_padding = False)
+    padding_constant_values : float, optional
+        The constant value to fill, by default 0
+        Only used when padding_mode = "constant"
 
     Returns
     -------
@@ -94,11 +112,13 @@ def shift_nth_row_n_steps(
         )
 
     # first pad to [s, r] -> [s+r, r]
+    # if cut_padding, could be [s, r] -> [s+r-1, r]
+    # and therefore by mode="reflect", we get symmetric output
     output = ivy.pad(
         a,
         [(0, 0)] * (len(shape) - 1) + [(0, l_row)],
-        mode="constant",
-        constant_values=0,
+        mode=padding_mode,
+        constant_values=padding_constant_values,
     )
 
     # flatten axis_shift_ to axis_row_
