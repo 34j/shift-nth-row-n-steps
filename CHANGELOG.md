@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0 (2024-10-26)
+
+### Features
+
+- Add padding options (#13) ([`d05076e`](https://github.com/34j/shift-nth-row-n-steps/commit/d05076e87836b5d321de5c8b650646af57861aef))
+
 ## v0.1.3 (2024-10-25)
 
 ### Bug fixes
