@@ -36,7 +36,9 @@ def shift_nth_row_n_steps_for_loop(
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
     """
-    outputs = ivy.zeros((ivy.shape(a)[axis_row], ivy.shape(a)[axis_row]), dtype=a.dtype, device=a.device)
+    outputs = ivy.zeros(
+        (ivy.shape(a)[axis_row], ivy.shape(a)[axis_row]), dtype=a.dtype, device=a.device
+    )
     row_len = ivy.shape(a)[axis_row]
     for i in range(row_len):
         row = take_slice(a, i, i + 1, axis=axis_row)
