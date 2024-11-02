@@ -4,7 +4,7 @@ requires = [ "poetry-core>=1.0.0" ]
 
 [tool.poetry]
 name = "shift-nth-row-n-steps"
-version = "0.2.0"
+version = "0.2.1"
 description = "Shift Nth row N steps in NumPy / PyTorch / TensorFlow / JAX"
 authors = [ "34j <34j.github@proton.me>" ]
 license = "MIT"

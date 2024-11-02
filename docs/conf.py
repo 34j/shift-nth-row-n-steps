@@ -15,7 +15,7 @@ from sphinx.ext import apidoc
 project = "Shift Nth Row N Steps"
 copyright = "2024, 34j"
 author = "34j"
-release = "0.2.0"
+release = "0.2.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

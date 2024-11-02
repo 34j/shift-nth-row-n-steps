@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1 (2024-11-02)
+
+### Bug fixes
+
+- Update dependency rich to v13.9.4 (#23) ([`d90637f`](https://github.com/34j/shift-nth-row-n-steps/commit/d90637f5e60eea4833dfa9e5e5e874af5100b9c0))
+
 ## v0.2.0 (2024-10-26)
 
 ### Features
