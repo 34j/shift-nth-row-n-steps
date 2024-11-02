@@ -1,4 +1,47 @@
+from collections.abc import Sequence
+from types import EllipsisType
+from typing import Callable
+
+import ivy
 from ivy import Array, NativeArray
+
+
+def create_slice(
+    ndim: int,
+    axis_and_key: Sequence[tuple[int, int | slice | EllipsisType | None]],
+    *,
+    default: int
+    | slice
+    | EllipsisType
+    | None
+    | Callable[[], int | slice | EllipsisType | None] = lambda: slice(None),
+) -> tuple[int | slice | EllipsisType | None, ...]:
+    """
+    Create a slice tuple with default values.
+
+    Parameters
+    ----------
+    ndim : int
+        The number of dimensions.
+    axis_and_key : Sequence[tuple[int, int  |  slice  |  EllipsisType  |  None]]
+        The axis and key pair.
+    default : int | slice | EllipsisType | None, optional
+        The default value, by default slice(None,)
+
+    Returns
+    -------
+    tuple[int | slice | EllipsisType | None, ...]
+        The slice tuple.
+
+    """
+    if isinstance(default, Callable):  # type: ignore
+        default_ = default()  # type: ignore
+    else:
+        default_ = default
+    result = [default_] * ndim
+    for axis, key in axis_and_key:
+        result[axis] = key
+    return tuple(result)
 
 
 def take_slice(a: Array | NativeArray, start: int, end: int, *, axis: int) -> Array:
@@ -22,12 +65,9 @@ def take_slice(a: Array | NativeArray, start: int, end: int, *, axis: int) -> Ar
         The sliced array.
 
     """
-    axis = axis % len(a.shape)
-    return a[
-        (slice(None),) * axis
-        + (slice(start, end),)
-        + (slice(None),) * (len(a.shape) - axis - 1)
-    ]
+    ndim = ivy.get_num_dims(a)
+    axis = axis % ndim
+    return a[create_slice(ndim, [(axis, slice(start, end))])]
 
 
 def narrow(a: Array | NativeArray, start: int, length: int, *, axis: int) -> Array:
@@ -73,7 +113,6 @@ def select(a: Array | NativeArray, index: int, *, axis: int) -> Array:
         The selected array.
 
     """
-    axis = axis % len(a.shape)
-    return a[
-        (slice(None),) * axis + (index,) + (slice(None),) * (len(a.shape) - axis - 1)
-    ]
+    ndim = ivy.get_num_dims(a)
+    axis = axis % ndim
+    return a[create_slice(ndim, [(axis, index)])]

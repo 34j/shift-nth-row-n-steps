@@ -7,7 +7,8 @@ from ivy_tests.test_ivy.helpers.assertions import assert_all_close
 
 from shift_nth_row_n_steps._main import (
     shift_nth_row_n_steps,
-    shift_nth_row_n_steps_for_loop,
+    shift_nth_row_n_steps_for_loop_assign,
+    shift_nth_row_n_steps_for_loop_concat,
 )
 from shift_nth_row_n_steps._torch_like import select
 
@@ -19,16 +20,29 @@ def setup(request: pytest.FixtureRequest) -> None:
     ivy.set_backend(request.param)
 
 
-def test_shift_nth_row_n_steps_match() -> None:
-    input = ivy.array([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
-    expected = ivy.array([[[1, 2, 3], [0, 4, 5], [0, 0, 7]]])
+@pytest.mark.parametrize("cut_padding", [True, False])
+def test_shift_nth_row_n_steps_match(cut_padding: bool) -> None:
+    input = ivy.array([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]])
+    if cut_padding:
+        expected = ivy.array([[[1, 2, 3, 4], [0, 5, 6, 7], [0, 0, 9, 10]]])
+    else:
+        expected = ivy.array(
+            [[[1, 2, 3, 4, 0, 0], [0, 5, 6, 7, 8, 0], [0, 0, 9, 10, 11, 12]]]
+        )
     assert_all_close(
-        shift_nth_row_n_steps(input, cut_padding=True),
+        shift_nth_row_n_steps(input, cut_padding=cut_padding),
         expected,
         ivy.current_backend_str,
     )
     assert_all_close(
-        shift_nth_row_n_steps_for_loop(input), expected, ivy.current_backend_str
+        shift_nth_row_n_steps_for_loop_concat(input, cut_padding=cut_padding),
+        expected,
+        ivy.current_backend_str,
+    )
+    assert_all_close(
+        shift_nth_row_n_steps_for_loop_assign(input, cut_padding=cut_padding),
+        expected,
+        ivy.current_backend_str,
     )
 
 
