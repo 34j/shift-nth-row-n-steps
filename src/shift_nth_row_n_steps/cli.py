@@ -3,7 +3,11 @@ import typer
 from cm_time import timer
 from rich import print
 
-from ._main import shift_nth_row_n_steps, shift_nth_row_n_steps_for_loop
+from ._main import (
+    shift_nth_row_n_steps,
+    shift_nth_row_n_steps_for_loop_assign,
+    shift_nth_row_n_steps_for_loop_concat,
+)
 
 app = typer.Typer()
 
@@ -37,10 +41,17 @@ def benchmark(
     ivy.set_backend(backend)
     ivy.set_default_device(device)
     ivy.set_default_float_dtype(ivy.FloatDtype(dtype))
-    for n in 2 ** ivy.arange(0, n_end):
+    for i in range(n_end):
+        n = 2**i
         input = ivy.random.random_uniform(shape=(n, n))
         with timer() as t1:
             shift_nth_row_n_steps(input)
         with timer() as t2:
-            shift_nth_row_n_steps_for_loop(input)
-        print(f"{n}: propsed: {t1.elapsed:g}, for loop: {t2.elapsed:g}")
+            shift_nth_row_n_steps_for_loop_concat(input)
+        with timer() as t3:
+            shift_nth_row_n_steps_for_loop_assign(input)
+        print(
+            f"{n}: propsed: {t1.elapsed:g}, "
+            f"for loop (concat): {t2.elapsed:g}, "
+            f"for loop (assign): {t3.elapsed:g}"
+        )

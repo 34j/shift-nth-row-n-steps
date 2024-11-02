@@ -4,10 +4,10 @@ from typing import Literal
 import ivy
 from ivy import Array, NativeArray
 
-from ._torch_like import take_slice
+from ._torch_like import create_slice, select, take_slice
 
 
-def shift_nth_row_n_steps_for_loop(
+def shift_nth_row_n_steps_for_loop_assign(
     a: Array | NativeArray,
     *,
     axis_row: int = -2,
@@ -22,9 +22,65 @@ def shift_nth_row_n_steps_for_loop(
     a : Array
         The source array.
     axis_row : int, optional
-        The axisension of the row to shift, by default -2
+        The axis of the row to shift, by default -2
     axis_shift : int, optional
-        The axisension of the shift, by default -1
+        The axis of the shift, by default -1
+    cut_padding : bool, optional
+        Whether to cut additional columns, by default False
+
+    Returns
+    -------
+    Array
+        The shifted array. If the input is (..., row, ..., shift, ...),
+        the output will be (..., row, ..., shift + row - 1, ...).
+        [...,i,...,j,...] -> [...,i,...,j+i,...]
+
+    """
+    input_shape = list(ivy.shape(a))
+    ndim = len(input_shape)
+    row_len = input_shape[axis_row]
+    shift_len = input_shape[axis_shift]
+
+    if cut_padding:
+        output = ivy.zeros_like(a)
+    else:
+        output_shape = list(input_shape)
+        output_shape[axis_shift] = row_len + shift_len - 1
+        output = ivy.zeros(output_shape, dtype=a.dtype, device=a.device)
+
+    for i in range(row_len):
+        row = take_slice(a, i, i + 1, axis=axis_row)
+        if cut_padding:
+            output[
+                create_slice(ndim, [(axis_row, i), (axis_shift, slice(i, None))])
+            ] = take_slice(row, 0, shift_len - i, axis=axis_shift)
+        else:
+            output[
+                create_slice(
+                    ndim, [(axis_row, i), (axis_shift, slice(i, i + shift_len))]
+                )
+            ] = row
+    return output
+
+
+def shift_nth_row_n_steps_for_loop_concat(
+    a: Array | NativeArray,
+    *,
+    axis_row: int = -2,
+    axis_shift: int = -1,
+    cut_padding: bool = False,
+) -> Array:
+    """
+    Shifts the nth row n steps to the right.
+
+    Parameters
+    ----------
+    a : Array
+        The source array.
+    axis_row : int, optional
+        The axis of the row to shift, by default -2
+    axis_shift : int, optional
+        The axis of the shift, by default -1
     cut_padding : bool, optional
         Whether to cut additional columns, by default False
 
@@ -37,16 +93,33 @@ def shift_nth_row_n_steps_for_loop(
 
     """
     outputs = []
-    row_len = ivy.shape(a)[axis_row]
-    for i in range(ivy.shape(a)[axis_row]):
+    input_shape = list(ivy.shape(a))
+    row_len = input_shape[axis_row]
+    shift_len = input_shape[axis_shift]
+    for i in range(row_len):
         row = take_slice(a, i, i + 1, axis=axis_row)
-        row_cut = take_slice(row, 0, row_len - i, axis=axis_shift)
-        zero_shape = list(ivy.shape(row))
-        zero_shape[axis_shift] = i
-        output = ivy.concat(
-            [ivy.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
-            axis=axis_shift,
-        ).squeeze(axis=axis_row)
+        row_shape = ivy.shape(row)
+        if cut_padding:
+            row_cut = take_slice(row, 0, shift_len - i, axis=axis_shift)
+            zero_shape = list(row_shape)
+            zero_shape[axis_shift] = i
+            output = ivy.concat(
+                [ivy.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
+                axis=axis_shift,
+            ).squeeze(axis=axis_row)
+        else:
+            zero_shape_left = list(row_shape)
+            zero_shape_left[axis_shift] = i
+            zero_shape_right = list(row_shape)
+            zero_shape_right[axis_shift] = row_len - 1 - i
+            output = ivy.concat(
+                [
+                    ivy.zeros(zero_shape_left, dtype=a.dtype, device=a.device),
+                    row,
+                    ivy.zeros(zero_shape_right, dtype=a.dtype, device=a.device),
+                ],
+                axis=axis_shift,
+            ).squeeze(axis=axis_row)
         outputs.append(output)
     output = ivy.stack(outputs, axis=axis_row)
     return output
@@ -125,7 +198,8 @@ def shift_nth_row_n_steps(
     flatten_shape = list(ivy.shape(output))
     flatten_shape[axis_shift_] = 1
     flatten_shape[axis_row_] = -1
-    output = output.reshape(flatten_shape).squeeze(axis=axis_shift_)
+    output = output.reshape(flatten_shape)
+    output = select(output, 0, axis=axis_shift_)
 
     # remove last padding, [(s+r)*r] -> [(s+r-1)*r]
     output = take_slice(output, 0, (l_shift + l_row - 1) * l_row, axis=axis_shift_)
@@ -133,7 +207,7 @@ def shift_nth_row_n_steps(
     # new shape is [s+r-1,r]
     result_shape = list(shape)
     result_shape[axis_shift_] = l_shift + l_row - 1
-    output = output.reshape(result_shape)
+    output = ivy.reshape(output, result_shape)
 
     # cut padding
     if cut_padding:
