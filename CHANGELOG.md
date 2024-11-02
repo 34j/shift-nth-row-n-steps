@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.2 (2024-11-02)
+
+### Bug fixes
+
+- Fix `cut_padding` not working (#24) ([`83713b6`](https://github.com/34j/shift-nth-row-n-steps/commit/83713b6a1b13c5c76c7e8601dcbadb4e8618adff))
+
 ## v0.2.1 (2024-11-02)
 
 ### Bug fixes
