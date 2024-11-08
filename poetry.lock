@@ -737,13 +737,13 @@ tests = ["freezegun", "pytest", "pytest-cov"]
 
 [[package]]
 name = "hypothesis"
-version = "6.117.0"
+version = "6.118.0"
 description = "A library for property-based testing"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "hypothesis-6.117.0-py3-none-any.whl", hash = "sha256:a220aa68d34f6ef52902b8e774e9f53c267fe4af4963493383443560cab61335"},
-    {file = "hypothesis-6.117.0.tar.gz", hash = "sha256:3d3b0c8026d1a48d25cd49e9a4096da03a766679da77485faac0d5349872544e"},
+    {file = "hypothesis-6.118.0-py3-none-any.whl", hash = "sha256:40e27343570cbb65d14a4d6da5ee38286995100d4fb93d4b8038ba3669e240e5"},
+    {file = "hypothesis-6.118.0.tar.gz", hash = "sha256:5568bae62a2b29c92e579589befa7773f685e3ca76ca4b9ec0b2e356dbf8541e"},
 ]
 
 [package.dependencies]
