@@ -38,6 +38,10 @@ def shift_nth_row_n_steps_for_loop_assign(
     """
     input_shape = list(ivy.shape(a))
     ndim = len(input_shape)
+    axis_row = axis_row % ndim
+    axis_shift = axis_shift % ndim
+    if axis_row == axis_shift:
+        raise ValueError("axis_row and axis_shift should not be the same.")
     row_len = input_shape[axis_row]
     shift_len = input_shape[axis_shift]
 
@@ -51,13 +55,21 @@ def shift_nth_row_n_steps_for_loop_assign(
     for i in range(row_len):
         row = take_slice(a, i, i + 1, axis=axis_row)
         if cut_padding:
+            if i >= shift_len:
+                break
             output[
-                create_slice(ndim, [(axis_row, i), (axis_shift, slice(i, None))])
+                create_slice(
+                    ndim, [(axis_row, slice(i, i + 1)), (axis_shift, slice(i, None))]
+                )
             ] = take_slice(row, 0, shift_len - i, axis=axis_shift)
         else:
             output[
                 create_slice(
-                    ndim, [(axis_row, i), (axis_shift, slice(i, i + shift_len))]
+                    ndim,
+                    [
+                        (axis_row, slice(i, i + 1)),
+                        (axis_shift, slice(i, i + shift_len)),
+                    ],
                 )
             ] = row
     return output
@@ -100,9 +112,9 @@ def shift_nth_row_n_steps_for_loop_concat(
         row = take_slice(a, i, i + 1, axis=axis_row)
         row_shape = ivy.shape(row)
         if cut_padding:
-            row_cut = take_slice(row, 0, shift_len - i, axis=axis_shift)
+            row_cut = take_slice(row, 0, max(0, shift_len - i), axis=axis_shift)
             zero_shape = list(row_shape)
-            zero_shape[axis_shift] = i
+            zero_shape[axis_shift] = min(i, shift_len)
             output = ivy.concat(
                 [ivy.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
                 axis=axis_shift,
@@ -123,6 +135,60 @@ def shift_nth_row_n_steps_for_loop_concat(
         outputs.append(output)
     output = ivy.stack(outputs, axis=axis_row)
     return output
+
+
+def shift_nth_row_n_steps_advanced_indexing(
+    a: Array | NativeArray,
+    *,
+    axis_row: int = -2,
+    axis_shift: int = -1,
+    cut_padding: bool = False,
+) -> Array:
+    """
+    Shifts the nth row n steps to the right.
+
+    Parameters
+    ----------
+    a : Array
+        The source array.
+    axis_row : int, optional
+        The axis of the row to shift, by default -2
+    axis_shift : int, optional
+        The axis of the shift, by default -1
+    cut_padding : bool, optional
+        Whether to cut additional columns, by default False
+
+    Returns
+    -------
+    Array
+        The shifted array. If the input is (..., row, ..., shift, ...),
+        the output will be (..., row, ..., shift + row - 1, ...).
+        [...,i,...,j,...] -> [...,i,...,j+i,...]
+
+    """
+    axis_row_ = -2
+    axis_shift_ = -1
+    a = ivy.moveaxis(a, (axis_row, axis_shift), (axis_row_, axis_shift_))
+    shape = ivy.shape(a)
+    i_row = ivy.arange(shape[axis_row_])[:, None]
+    i_shift = (
+        ivy.arange(shape[axis_shift_] + (0 if cut_padding else shape[axis_row_] - 1))[
+            None, :
+        ]
+        - i_row
+    )
+    i_shift = ivy.clip(i_shift, -1, shape[axis_shift_])
+    if not cut_padding:
+        i_shift = ivy.where(i_shift == shape[axis_shift_], -1, i_shift)
+    a = a[
+        create_slice(
+            len(shape),
+            [(axis_row_, i_row), (axis_shift_, i_shift)],
+            default=slice(None),
+        )
+    ]
+    a[create_slice(len(shape) - 1, [(-1, i_shift == -1)], default=slice(None))] = 0
+    return ivy.moveaxis(a, (axis_row_, axis_shift_), (axis_row, axis_shift))
 
 
 def shift_nth_row_n_steps(
@@ -180,7 +246,8 @@ def shift_nth_row_n_steps(
     l_shift = shape[axis_shift_]
     if cut_padding and l_shift < l_row:
         warnings.warn(
-            "cut_padding is True, but s < r, which results in redundant computation.",
+            "cut_padding is True, but s < r, "
+            "which results in redundant computation.",
             stacklevel=2,
         )
 
