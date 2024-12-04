@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.7 (2024-12-04)
+
+### Bug fixes
+
+- Update dependency typer to v0.15.1 (#70) ([`be5cadb`](https://github.com/34j/shift-nth-row-n-steps/commit/be5cadb5411de1da5f24043b03f5035c17bfc0ae))
+
 ## v0.2.6 (2024-12-03)
 
 ### Bug fixes
