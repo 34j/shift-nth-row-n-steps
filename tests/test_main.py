@@ -7,6 +7,7 @@ from ivy_tests.test_ivy.helpers.assertions import assert_all_close
 
 from shift_nth_row_n_steps._main import (
     shift_nth_row_n_steps,
+    shift_nth_row_n_steps_advanced_indexing,
     shift_nth_row_n_steps_for_loop_assign,
     shift_nth_row_n_steps_for_loop_concat,
 )
@@ -21,7 +22,7 @@ def setup(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.mark.parametrize("cut_padding", [True, False])
-def test_shift_nth_row_n_steps_match(cut_padding: bool) -> None:
+def test_shift_nth_row_n_steps_manual_match(cut_padding: bool) -> None:
     input = ivy.array([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]])
     if cut_padding:
         expected = ivy.array([[[1, 2, 3, 4], [0, 5, 6, 7], [0, 0, 9, 10]]])
@@ -36,6 +37,11 @@ def test_shift_nth_row_n_steps_match(cut_padding: bool) -> None:
     )
     assert_all_close(
         shift_nth_row_n_steps_for_loop_concat(input, cut_padding=cut_padding),
+        expected,
+        ivy.current_backend_str,
+    )
+    assert_all_close(
+        shift_nth_row_n_steps_advanced_indexing(input, cut_padding=cut_padding),
         expected,
         ivy.current_backend_str,
     )
@@ -57,13 +63,24 @@ def test_shift_nth_row_n_steps(
     shape: tuple[int, ...], axis_row: int, axis_shift: int, cut_padding: bool
 ) -> None:
     array = ivy.ones(shape)
-    shift_nth_row_n_steps(
-        array,
-        axis_row=axis_row,
-        axis_shift=axis_shift,
-        cut_padding=cut_padding,
-        padding_constant_values=0.1,
-    )
+    funcs = [
+        shift_nth_row_n_steps,
+        shift_nth_row_n_steps_for_loop_concat,
+        shift_nth_row_n_steps_for_loop_assign,
+        shift_nth_row_n_steps_advanced_indexing,
+    ]
+    results = [
+        func(  # type: ignore
+            array,
+            axis_row=axis_row,
+            axis_shift=axis_shift,
+            cut_padding=cut_padding,
+            # padding_constant_values=0.1,
+        )
+        for func in funcs
+    ]
+    for i in range(len(results) - 1):
+        assert_all_close(results[i], results[i + 1], ivy.current_backend_str)
 
 
 @pytest.mark.parametrize("index", [(0, 0), (0, 1), (1, 0), (1, 1), (3, 4)])
