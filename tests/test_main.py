@@ -1,4 +1,5 @@
 import importlib.util
+from typing import Any, Literal
 from unittest import SkipTest
 
 import ivy
@@ -22,33 +23,44 @@ def setup(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.mark.parametrize("cut_padding", [True, False])
-def test_shift_nth_row_n_steps_manual_match(cut_padding: bool) -> None:
+@pytest.mark.parametrize("mode", ["fill", "roll", "abs"])
+@pytest.mark.parametrize(
+    "func",
+    [
+        shift_nth_row_n_steps,
+        shift_nth_row_n_steps_advanced_indexing,
+        shift_nth_row_n_steps_for_loop_assign,
+        shift_nth_row_n_steps_for_loop_concat,
+    ],
+)
+def test_shift_nth_row_n_steps_manual_match(
+    cut_padding: bool, mode: Literal["fill", "roll", "abs"], func: Any
+) -> None:
     input = ivy.array([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]])
-    if cut_padding:
-        expected = ivy.array([[[1, 2, 3, 4], [0, 5, 6, 7], [0, 0, 9, 10]]])
-    else:
+    if mode == "fill":
         expected = ivy.array(
             [[[1, 2, 3, 4, 0, 0], [0, 5, 6, 7, 8, 0], [0, 0, 9, 10, 11, 12]]]
         )
-    assert_all_close(
-        shift_nth_row_n_steps(input, cut_padding=cut_padding),
+    elif mode == "roll":
+        expected = ivy.array(
+            [[[1, 2, 3, 4, 1, 2], [3, 5, 6, 7, 8, 5], [6, 7, 9, 10, 11, 12]]]
+        )
+    elif mode == "abs":
+        expected = ivy.array(
+            [[[1, 2, 3, 4, 3, 2], [1, 5, 6, 7, 8, 7], [6, 5, 9, 10, 11, 12]]]
+        )
+    if cut_padding:
+        expected = expected[:, :, :4]
+    if mode != "fill" and func in [
+        shift_nth_row_n_steps_for_loop_assign,
+        shift_nth_row_n_steps_for_loop_concat,
+        shift_nth_row_n_steps_advanced_indexing,
+    ]:
+        pytest.skip("Not implemented")
+
+    assert ivy.allclose(
+        func(input, cut_padding=cut_padding, mode=mode, fill_values=0),
         expected,
-        ivy.current_backend_str,
-    )
-    assert_all_close(
-        shift_nth_row_n_steps_for_loop_concat(input, cut_padding=cut_padding),
-        expected,
-        ivy.current_backend_str,
-    )
-    assert_all_close(
-        shift_nth_row_n_steps_advanced_indexing(input, cut_padding=cut_padding),
-        expected,
-        ivy.current_backend_str,
-    )
-    assert_all_close(
-        shift_nth_row_n_steps_for_loop_assign(input, cut_padding=cut_padding),
-        expected,
-        ivy.current_backend_str,
     )
 
 
@@ -70,7 +82,7 @@ def test_shift_nth_row_n_steps(
         shift_nth_row_n_steps_advanced_indexing,
     ]
     results = [
-        func(  # type: ignore
+        func(
             array,
             axis_row=axis_row,
             axis_shift=axis_shift,
