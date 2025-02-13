@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.2.7 (2024-12-04)
+
+### Bug fixes
+
+- Update dependency typer to v0.15.1 (#70) ([`be5cadb`](https://github.com/34j/shift-nth-row-n-steps/commit/be5cadb5411de1da5f24043b03f5035c17bfc0ae))
+
+## v0.2.6 (2024-12-03)
+
+### Bug fixes
+
+- Update dependency typer to ^0.15.0 (#68) ([`2fac2b5`](https://github.com/34j/shift-nth-row-n-steps/commit/2fac2b510d9ce32da86ed2ad85889753d675c5d4))
+
+## v0.2.5 (2024-11-29)
+
+### Bug fixes
+
+- Update dependency typer to ^0.14.0 (#59) ([`0c40526`](https://github.com/34j/shift-nth-row-n-steps/commit/0c405264fc02ca484b0473d453126a96e720f17d))
+
+## v0.2.4 (2024-11-19)
+
+### Bug fixes
+
+- Update dependency typer to v0.13.1 (#52) ([`6b9c2ef`](https://github.com/34j/shift-nth-row-n-steps/commit/6b9c2ef8ffa72d918d45a2e4fcbeaed5bd14ce5e))
+
 ## v0.2.3 (2024-11-08)
 
 ### Bug fixes

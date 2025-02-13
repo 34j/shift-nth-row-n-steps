@@ -4,7 +4,7 @@ requires = [ "poetry-core>=1.0.0" ]
 
 [tool.poetry]
 name = "shift-nth-row-n-steps"
-version = "0.2.3"
+version = "0.2.7"
 description = "Shift Nth row N steps in NumPy / PyTorch / TensorFlow / JAX"
 authors = [ "34j <34j.github@proton.me>" ]
 license = "MIT"
@@ -31,7 +31,7 @@ shift-nth-row-n-steps = "shift_nth_row_n_steps.cli:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-typer = "^0.13.0"
+typer = "^0.15.0"
 ivy = "^1.0.0.0"
 cm-time = "^0.1.2"
 
@@ -48,7 +48,7 @@ optional = true
 [tool.poetry.group.benchmark.dependencies]
 numpy = "^2.0.0"
 torch = "^2.5.0"
-jax = {extras = ["cuda12"], version = "^0.4.35"}
+jax = {extras = ["cuda12"], version = "^0.5.0"}
 flax = "^0.10.0"
 
 [tool.poetry.group.docs]
