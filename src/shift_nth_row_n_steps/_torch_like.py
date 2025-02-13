@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from types import EllipsisType
-from typing import Callable
+from typing import Any, Callable
 
 import ivy
 from ivy import Array, NativeArray
@@ -116,3 +116,25 @@ def select(a: Array | NativeArray, index: int, *, axis: int) -> Array:
     ndim = ivy.get_num_dims(a)
     axis = axis % ndim
     return a[create_slice(ndim, [(axis, index)])]
+
+
+def advanced_indexing_nan(a: Array | NativeArray, index: Any) -> Array:
+    """
+    Advanced indexing with NaN.
+
+    Parameters
+    ----------
+    a : Array
+        The source array.
+    index : int
+        The index of the element to select.
+
+    Returns
+    -------
+    Array
+        The selected array.
+
+    """
+    a = a[ivy.nan_to_num(index, 0)]
+    a[ivy.isnan(index)] = ivy.nan
+    return a
