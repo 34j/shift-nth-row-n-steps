@@ -866,18 +866,21 @@ tqdm = "*"
 
 [[package]]
 name = "jax"
-version = "0.5.1"
+version = "0.5.2"
 description = "Differentiate, compile, and transform Numpy code."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "jax-0.5.1-py3-none-any.whl", hash = "sha256:4fdfedeccdb974bf36046a2ebab4217b1abb296e7ce6fabef4c2482d956cbbab"},
-    {file = "jax-0.5.1.tar.gz", hash = "sha256:c098f74846ee718165bbfa83521ae10cd52cf50b47f043f8b33a6cfd3c20ddfd"},
+    {file = "jax-0.5.2-py3-none-any.whl", hash = "sha256:d80954d90e2cce57498b6e9c23a6402c2c39edf86d4f808813ab1d1e97672e34"},
+    {file = "jax-0.5.2.tar.gz", hash = "sha256:2aef7d1912df329470c47ce8f2e6521c105e84aa620311494048c391235087c6"},
 ]
 
 [package.dependencies]
-jax-cuda12-plugin = {version = "0.5.1", extras = ["with-cuda"], optional = true, markers = "extra == \"cuda12\""}
-jaxlib = "0.5.1"
+jax-cuda12-plugin = {version = ">=0.5.1,<=0.5.2", extras = ["with-cuda"], optional = true, markers = "extra == \"cuda12\""}
+jaxlib = [
+    {version = ">=0.5.1,<=0.5.2"},
+    {version = "0.5.1", optional = true, markers = "extra == \"cuda12\""},
+]
 ml_dtypes = ">=0.4.0"
 numpy = [
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
@@ -888,14 +891,14 @@ scipy = ">=1.11.1"
 
 [package.extras]
 ci = ["jaxlib (==0.5.0)"]
-cuda = ["jax-cuda12-plugin[with-cuda] (==0.5.1)", "jaxlib (==0.5.1)"]
-cuda12 = ["jax-cuda12-plugin[with-cuda] (==0.5.1)", "jaxlib (==0.5.1)"]
+cuda = ["jax-cuda12-plugin[with-cuda] (>=0.5.1,<=0.5.2)", "jaxlib (==0.5.1)"]
+cuda12 = ["jax-cuda12-plugin[with-cuda] (>=0.5.1,<=0.5.2)", "jaxlib (==0.5.1)"]
 cuda12-local = ["jax-cuda12-plugin (==0.5.1)", "jaxlib (==0.5.1)"]
-cuda12-pip = ["jax-cuda12-plugin[with-cuda] (==0.5.1)", "jaxlib (==0.5.1)"]
+cuda12-pip = ["jax-cuda12-plugin[with-cuda] (>=0.5.1,<=0.5.2)", "jaxlib (==0.5.1)"]
 k8s = ["kubernetes"]
 minimum-jaxlib = ["jaxlib (==0.5.1)"]
-rocm = ["jax-rocm60-plugin (==0.5.1)", "jaxlib (==0.5.1)"]
-tpu = ["jaxlib (==0.5.1)", "libtpu (==0.0.10)", "requests"]
+rocm = ["jax-rocm60-plugin (>=0.5.1,<=0.5.2)", "jaxlib (==0.5.1)"]
+tpu = ["jaxlib (>=0.5.1,<=0.5.2)", "libtpu (==0.0.10.*)", "requests"]
 
 [[package]]
 name = "jax-cuda12-pjrt"
