@@ -40,7 +40,7 @@ pytest = "^8.0.0"
 pytest-cov = "^6.0.0"
 hypothesis = "^6.115.3"
 astunparse = "^1.6.3"
-termcolor = "^2.5.0"
+termcolor = "^3.0.0"
 
 [tool.poetry.group.benchmark]
 optional = true
