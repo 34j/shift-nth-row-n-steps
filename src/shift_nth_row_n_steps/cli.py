@@ -5,8 +5,7 @@ from rich import print
 
 from ._main import (
     shift_nth_row_n_steps,
-    shift_nth_row_n_steps_for_loop_assign,
-    shift_nth_row_n_steps_for_loop_concat,
+    shift_nth_row_n_steps_advanced_indexing,
 )
 
 app = typer.Typer()
@@ -46,12 +45,15 @@ def benchmark(
         input = ivy.random.random_uniform(shape=(n, n))
         with timer() as t1:
             shift_nth_row_n_steps(input)
-        with timer() as t2:
-            shift_nth_row_n_steps_for_loop_concat(input)
-        with timer() as t3:
-            shift_nth_row_n_steps_for_loop_assign(input)
+        # with timer() as t2:
+        #     shift_nth_row_n_steps_for_loop_concat(input)
+        # with timer() as t3:
+        #     shift_nth_row_n_steps_for_loop_assign(input)
+        with timer() as t4:
+            shift_nth_row_n_steps_advanced_indexing(input)
         print(
             f"{n}: propsed: {t1.elapsed:g}, "
-            f"for loop (concat): {t2.elapsed:g}, "
-            f"for loop (assign): {t3.elapsed:g}"
+            # f"for loop (concat): {t2.elapsed:g}, "
+            # f"for loop (assign): {t3.elapsed:g}, "
+            f"advanced indexing: {t4.elapsed:g}"
         )
