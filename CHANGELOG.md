@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.11 (2025-05-26)
+
+### Bug fixes
+
+- Update dependency typer to ^0.16.0 (#213) ([`9deb8ab`](https://github.com/34j/shift-nth-row-n-steps/commit/9deb8ab0aa54812b397798fe1841697b6383d3a6))
+
 ## v0.2.10 (2025-05-14)
 
 ### Bug fixes
