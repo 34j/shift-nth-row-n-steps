@@ -1,8 +1,9 @@
 import warnings
-from typing import Literal
+from typing import Any, Literal
 
-import ivy
-from ivy import Array, NativeArray
+import array_api_extra as xpx
+from array_api._2024_12 import Array
+from array_api_compat import array_namespace
 from typing_extensions import deprecated
 
 from ._torch_like import create_slice, select, take_slice
@@ -15,7 +16,7 @@ from ._torch_like import create_slice, select, take_slice
     category=DeprecationWarning,
 )
 def shift_nth_row_n_steps_for_loop_assign(
-    a: Array | NativeArray,
+    a: Array,
     *,
     axis_row: int = -2,
     axis_shift: int = -1,
@@ -45,7 +46,7 @@ def shift_nth_row_n_steps_for_loop_assign(
         - abs(padding_mode=reflect) -> shift + symmetric
             (a[i,j] = b[i] then result[i,j] = b[abs(j+n_shift*i)]
             not implemented,
-            do `result + result.T - result * ivy.eye(result.shape[-1])` instead
+            do `result + result.T - result * xp.eye(result.shape[-1])` instead
             (current behavior aims to support cut_padding = False)
     fill_values : Literal[0], optional
         The constant value to fill, by default 0
@@ -59,7 +60,8 @@ def shift_nth_row_n_steps_for_loop_assign(
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
     """
-    input_shape = list(ivy.shape(a))
+    xp = array_namespace(a)
+    input_shape = list(a.shape)
     ndim = len(input_shape)
     axis_row = axis_row % ndim
     axis_shift = axis_shift % ndim
@@ -69,11 +71,11 @@ def shift_nth_row_n_steps_for_loop_assign(
     shift_len = input_shape[axis_shift]
 
     if cut_padding:
-        output = ivy.zeros_like(a)
+        output = xp.zeros_like(a)
     else:
         output_shape = list(input_shape)
         output_shape[axis_shift] = row_len + shift_len - 1
-        output = ivy.zeros(output_shape, dtype=a.dtype, device=a.device)
+        output = xp.zeros(output_shape, dtype=a.dtype, device=a.device)
 
     for i in range(row_len):
         row = take_slice(a, i, i + 1, axis=axis_row)
@@ -105,7 +107,7 @@ def shift_nth_row_n_steps_for_loop_assign(
     category=DeprecationWarning,
 )
 def shift_nth_row_n_steps_for_loop_concat(
-    a: Array | NativeArray,
+    a: Array,
     *,
     axis_row: int = -2,
     axis_shift: int = -1,
@@ -135,7 +137,7 @@ def shift_nth_row_n_steps_for_loop_concat(
         - abs(padding_mode=reflect) -> shift + symmetric
             (a[i,j] = b[i] then result[i,j] = b[abs(j+n_shift*i)]
             not implemented,
-            do `result + result.T - result * ivy.eye(result.shape[-1])` instead
+            do `result + result.T - result * xp.eye(result.shape[-1])` instead
             (current behavior aims to support cut_padding = False)
     fill_values : Literal[0], optional
         The constant value to fill, by default 0
@@ -149,19 +151,20 @@ def shift_nth_row_n_steps_for_loop_concat(
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
     """
+    xp = array_namespace(a)
     outputs = []
-    input_shape = list(ivy.shape(a))
+    input_shape = list(a.shape)
     row_len = input_shape[axis_row]
     shift_len = input_shape[axis_shift]
     for i in range(row_len):
         row = take_slice(a, i, i + 1, axis=axis_row)
-        row_shape = ivy.shape(row)
+        row_shape = row.shape
         if cut_padding:
             row_cut = take_slice(row, 0, max(0, shift_len - i), axis=axis_shift)
             zero_shape = list(row_shape)
             zero_shape[axis_shift] = min(i, shift_len)
-            output = ivy.concat(
-                [ivy.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
+            output = xp.concat(
+                [xp.zeros(zero_shape, dtype=a.dtype, device=a.device), row_cut],
                 axis=axis_shift,
             ).squeeze(axis=axis_row)
         else:
@@ -169,21 +172,21 @@ def shift_nth_row_n_steps_for_loop_concat(
             zero_shape_left[axis_shift] = i
             zero_shape_right = list(row_shape)
             zero_shape_right[axis_shift] = row_len - 1 - i
-            output = ivy.concat(
+            output = xp.concat(
                 [
-                    ivy.zeros(zero_shape_left, dtype=a.dtype, device=a.device),
+                    xp.zeros(zero_shape_left, dtype=a.dtype, device=a.device),
                     row,
-                    ivy.zeros(zero_shape_right, dtype=a.dtype, device=a.device),
+                    xp.zeros(zero_shape_right, dtype=a.dtype, device=a.device),
                 ],
                 axis=axis_shift,
             ).squeeze(axis=axis_row)
         outputs.append(output)
-    output = ivy.stack(outputs, axis=axis_row)
+    output = xp.stack(outputs, axis=axis_row)
     return output
 
 
 def shift_nth_row_n_steps_advanced_indexing(
-    a: Array | NativeArray,
+    a: Array,
     *,
     axis_row: int = -2,
     axis_shift: int = -1,
@@ -213,7 +216,7 @@ def shift_nth_row_n_steps_advanced_indexing(
         - abs(padding_mode=reflect) -> shift + symmetric
             (a[i,j] = b[i] then result[i,j] = b[abs(j+n_shift*i)]
             not implemented,
-            do `result + result.T - result * ivy.eye(result.shape[-1])` instead
+            do `result + result.T - result * xp.eye(result.shape[-1])` instead
             (current behavior aims to support cut_padding = False)
     fill_values : float, optional
         The constant value to fill, by default 0
@@ -227,20 +230,21 @@ def shift_nth_row_n_steps_advanced_indexing(
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
     """
+    xp = array_namespace(a)
     axis_row_ = -2
     axis_shift_ = -1
-    a = ivy.moveaxis(a, (axis_row, axis_shift), (axis_row_, axis_shift_))
-    shape = ivy.shape(a)
-    i_row = ivy.arange(shape[axis_row_])[:, None]
+    a = xp.moveaxis(a, (axis_row, axis_shift), (axis_row_, axis_shift_))
+    shape = a.shape
+    i_row = xp.arange(shape[axis_row_])[:, None]
     i_shift = (
-        ivy.arange(shape[axis_shift_] + (0 if cut_padding else shape[axis_row_] - 1))[
+        xp.arange(shape[axis_shift_] + (0 if cut_padding else shape[axis_row_] - 1))[
             None, :
         ]
         - i_row
     )
-    i_shift = ivy.clip(i_shift, -1, shape[axis_shift_])
+    i_shift = xp.clip(i_shift, -1, shape[axis_shift_])
     if not cut_padding:
-        i_shift = ivy.where(i_shift == shape[axis_shift_], -1, i_shift)
+        i_shift = xp.where(i_shift == shape[axis_shift_], -1, i_shift)
     a = a[
         create_slice(
             len(shape),
@@ -248,12 +252,14 @@ def shift_nth_row_n_steps_advanced_indexing(
             default=slice(None),
         )
     ]
-    a[create_slice(len(shape) - 1, [(-1, i_shift == -1)], default=slice(None))] = 0
-    return ivy.moveaxis(a, (axis_row_, axis_shift_), (axis_row, axis_shift))
+    a = xpx.at(
+        a, create_slice(len(shape) - 1, [(-1, i_shift == -1)], default=slice(None))
+    ).set(0)
+    return xp.moveaxis(a, (axis_row_, axis_shift_), (axis_row, axis_shift))
 
 
 def shift_nth_row_n_steps(
-    a: Array | NativeArray,
+    a: Array,
     *,
     axis_row: int = -2,
     axis_shift: int = -1,
@@ -283,7 +289,7 @@ def shift_nth_row_n_steps(
         - abs(padding_mode=reflect) -> shift + symmetric
             (a[i,j] = b[i] then result[i,j] = b[abs(j+n_shift*i)]
             not implemented,
-            do `result + result.T - result * ivy.eye(result.shape[-1])` instead
+            do `result + result.T - result * xp.eye(result.shape[-1])` instead
             (current behavior aims to support cut_padding = False)
     fill_values : float, optional
         The constant value to fill, by default 0
@@ -297,18 +303,18 @@ def shift_nth_row_n_steps(
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
     """
+    xp = array_namespace(a)
     # swap axis_row and -2, axis_shift and -1
     axis_row_ = -2
     axis_shift_ = -1
-    a = ivy.moveaxis(a, (axis_row, axis_shift), (axis_row_, axis_shift_))
+    a = xp.moveaxis(a, (axis_row, axis_shift), (axis_row_, axis_shift_))
 
-    shape = ivy.shape(a)
+    shape = a.shape
     l_row = shape[axis_row_]
     l_shift = shape[axis_shift_]
     if cut_padding and l_shift < l_row:
         warnings.warn(
-            "cut_padding is True, but s < r, "
-            "which results in redundant computation.",
+            "cut_padding is True, but s < r, which results in redundant computation.",
             stacklevel=2,
         )
 
@@ -320,15 +326,29 @@ def shift_nth_row_n_steps(
         "roll": "wrap",
         "abs": "reflect",
     }[mode]
-    output = ivy.pad(
-        a,
-        [(0, 0)] * (len(shape) - 1) + [(0, l_row)],
-        mode=mode_,
-        constant_values=fill_values,
-    )
+    if "torch" in str(xp):
+        if mode_ == "wrap":
+            mode_ = "circular"
+        kwargs: dict[str, Any] = {"mode": mode_}
+        if mode_ == "constant":
+            kwargs["value"] = fill_values
+        output = xp.nn.functional.pad(
+            a,
+            (0, l_row),
+            **kwargs,
+        )
+    else:
+        kwargs = {"mode": mode_}
+        if mode_ == "constant":
+            kwargs["constant_values"] = fill_values
+        output = xp.pad(
+            a,
+            [(0, 0)] * (len(shape) - 1) + [(0, l_row)],
+            **kwargs,
+        )
 
     # flatten axis_shift_ to axis_row_
-    flatten_shape = list(ivy.shape(output))
+    flatten_shape = list(output.shape)
     flatten_shape[axis_shift_] = 1
     flatten_shape[axis_row_] = -1
     output = output.reshape(flatten_shape)
@@ -340,11 +360,11 @@ def shift_nth_row_n_steps(
     # new shape is [s+r-1,r]
     result_shape = list(shape)
     result_shape[axis_shift_] = l_shift + l_row - 1
-    output = ivy.reshape(output, result_shape)
+    output = xp.reshape(output, result_shape)
 
     # cut padding
     if cut_padding:
         output = take_slice(output, 0, l_shift, axis=axis_shift_)
 
     # return the result
-    return ivy.moveaxis(output, (axis_row_, axis_shift_), (axis_row, axis_shift))
+    return xp.moveaxis(output, (axis_row_, axis_shift_), (axis_row, axis_shift))
