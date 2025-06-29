@@ -68,7 +68,7 @@ print(shifted)
 
 ## Benchmark
 
-![Benchmark](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/benchmark.webp)
+![Benchmark](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/main/benchmark.webp)
 
 ## Algorithm
 
