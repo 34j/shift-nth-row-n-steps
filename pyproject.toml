@@ -41,11 +41,15 @@ scripts.shift-nth-row-n-steps = "shift_nth_row_n_steps.cli:app"
 
 [dependency-groups]
 dev = [
+  "aquarel>=0.0.7",
   "array-api-extra>=0.8.0",
-  "jax>=0.6.2",
+  "jax[cuda]==0.5",
+  "matplotlib>=3.10.3",
   "numpy>=2.2.6",
+  "pandas>=2.3.0",
   "pytest>=8,<9",
   "pytest-cov>=6,<7",
+  "seaborn>=0.13.2",
   "torch>=2.7.1",
 ]
 docs = [

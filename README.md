@@ -44,7 +44,25 @@ Shift Nth row N steps in NumPy / PyTorch / TensorFlow / JAX
 
 Install this via pip (or your favourite package manager):
 
-`pip install shift-nth-row-n-steps`
+```shell
+pip install shift-nth-row-n-steps
+```
+
+## Usage
+
+```python
+from shift_nth_row_n_steps import shift_nth_row_n_steps
+
+a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+shifted = shift_nth_row_n_steps(a)
+print(shifted)
+```
+
+```text
+[[1 2 3]
+ [0 4 5]
+ [0 0 7]]
+```
 
 ## Contributors ✨
 
