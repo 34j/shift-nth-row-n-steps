@@ -1,9 +1,9 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from types import EllipsisType
-from typing import Callable
+from typing import Any
 
-import ivy
-from ivy import Array, NativeArray
+from array_api._2024_12 import Array
+from array_api_compat import array_namespace
 
 
 def create_slice(
@@ -44,7 +44,7 @@ def create_slice(
     return tuple(result)
 
 
-def take_slice(a: Array | NativeArray, start: int, end: int, *, axis: int) -> Array:
+def take_slice(a: Array, start: int, end: int, *, axis: int) -> Array:
     """
     numpy.take() alternative using slices. (faster) similar to torch.narrow().
 
@@ -65,14 +65,14 @@ def take_slice(a: Array | NativeArray, start: int, end: int, *, axis: int) -> Ar
         The sliced array.
 
     """
-    ndim = ivy.get_num_dims(a)
+    ndim = a.ndim
     axis = axis % ndim
     return a[create_slice(ndim, [(axis, slice(start, end))])]
 
 
-def narrow(a: Array | NativeArray, start: int, length: int, *, axis: int) -> Array:
+def narrow(a: Array, start: int, length: int, *, axis: int) -> Array:
     """
-    torch.narrow() in ivy.
+    torch.narrow() in xp.
 
     Parameters
     ----------
@@ -94,9 +94,9 @@ def narrow(a: Array | NativeArray, start: int, length: int, *, axis: int) -> Arr
     return take_slice(a, start, start + length, axis=axis)
 
 
-def select(a: Array | NativeArray, index: int, *, axis: int) -> Array:
+def select(a: Array, index: int, *, axis: int) -> Array:
     """
-    torch.select() (!= numpy.select()) in ivy.
+    torch.select() (!= numpy.select()) in xp.
 
     Parameters
     ----------
@@ -113,6 +113,29 @@ def select(a: Array | NativeArray, index: int, *, axis: int) -> Array:
         The selected array.
 
     """
-    ndim = ivy.get_num_dims(a)
+    ndim = a.ndim
     axis = axis % ndim
     return a[create_slice(ndim, [(axis, index)])]
+
+
+def advanced_indexing_nan(a: Array, index: Any) -> Array:
+    """
+    Advanced indexing with NaN.
+
+    Parameters
+    ----------
+    a : Array
+        The source array.
+    index : int
+        The index of the element to select.
+
+    Returns
+    -------
+    Array
+        The selected array.
+
+    """
+    xp = array_namespace(a)
+    a = a[xp.nan_to_num(index, 0)]
+    a[xp.isnan(index)] = xp.nan
+    return a

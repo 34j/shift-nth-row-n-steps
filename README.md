@@ -12,8 +12,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://python-poetry.org/">
-    <img src="https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json" alt="Poetry">
+  <a href="https://github.com/astral-sh/uv">
+    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv">
   </a>
   <a href="https://github.com/astral-sh/ruff">
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
@@ -44,7 +44,35 @@ Shift Nth row N steps in NumPy / PyTorch / TensorFlow / JAX
 
 Install this via pip (or your favourite package manager):
 
-`pip install shift-nth-row-n-steps`
+```shell
+pip install shift-nth-row-n-steps
+```
+
+## Usage
+
+```python
+from shift_nth_row_n_steps import shift_nth_row_n_steps
+
+a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+shifted = shift_nth_row_n_steps(a)
+print(shifted)
+```
+
+```text
+[[1 2 3]
+ [0 4 5]
+ [0 0 7]]
+```
+
+`shift_nth_row_n_steps` is [array API](https://data-apis.org/array-api/latest/) compatible, which means it works with NumPy, PyTorch, JAX, and other libraries that implement the array API standard.
+
+## Benchmark
+
+![Benchmark](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/benchmark.webp)
+
+## Algorithm
+
+![Algorithm](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/main/docs/algo.png)
 
 ## Contributors ✨
 
@@ -52,25 +80,16 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- prettier-ignore-start -->
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/34j"><img src="https://avatars.githubusercontent.com/u/55338215?v=4?s=80" width="80px;" alt="34j"/><br /><sub><b>34j</b></sub></a><br /><a href="https://github.com/34j/shift-nth-row-n-steps/commits?author=34j" title="Code">💻</a> <a href="#ideas-34j" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/34j/shift-nth-row-n-steps/commits?author=34j" title="Documentation">📖</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
+<!-- markdownlint-enable -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 <!-- prettier-ignore-end -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ## Credits
+
+[![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-orange.json)](https://github.com/copier-org/copier)
 
 This package was created with
 [Copier](https://copier.readthedocs.io/) and the
