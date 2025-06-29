@@ -1,7 +1,5 @@
 import warnings
 
-import jax
-import jax.numpy as jnp
 import numpy as np
 import seaborn as sns
 import typer
@@ -49,8 +47,8 @@ def benchmark(
         # ("jax", jnp),
     ]:
         for device in ["cpu", "cuda"]:
-            if xp == jnp:
-                device = jax.devices(device)[0]
+            # if xp == jnp:
+            #     device = jax.devices(device)[0]
             for i in range(n_end):
                 try:
                     n = 2**i
