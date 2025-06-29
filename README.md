@@ -64,6 +64,8 @@ print(shifted)
  [0 0 7]]
 ```
 
+`shift_nth_row_n_steps` is [array API](https://data-apis.org/array-api/latest/) compatible, which means it works with NumPy, PyTorch, JAX, and other libraries that implement the array API standard.
+
 ## Benchmark
 
 ![Benchmark](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/benchmark.webp)

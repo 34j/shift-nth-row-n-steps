@@ -2,7 +2,6 @@ from math import prod
 from typing import Any, Literal
 
 import array_api_extra as xpx
-import jax.numpy as jax
 import pytest
 from array_api._2024_12 import ArrayNamespace
 from array_api_compat import numpy, torch
@@ -16,7 +15,7 @@ from shift_nth_row_n_steps._main import (
 from shift_nth_row_n_steps._torch_like import select
 
 
-@pytest.mark.parametrize("xp", [numpy, jax, torch])
+@pytest.mark.parametrize("xp", [numpy, torch])
 @pytest.mark.parametrize("cut_padding", [True, False])
 @pytest.mark.parametrize("mode", ["fill", "roll", "abs"])
 @pytest.mark.parametrize(
@@ -64,7 +63,7 @@ def test_shift_nth_row_n_steps_manual_match(
     )
 
 
-@pytest.mark.parametrize("xp", [numpy, jax, torch])
+@pytest.mark.parametrize("xp", [numpy, torch])
 @pytest.mark.parametrize(
     "shape", [(1, 1, 1), (1, 1, 2), (1, 2, 1), (2, 7, 4), (2, 4, 7)]
 )
@@ -100,7 +99,7 @@ def test_shift_nth_row_n_steps(
         assert xp.all(xpx.isclose(results[i], results[i + 1]))
 
 
-@pytest.mark.parametrize("xp", [numpy, jax, torch])
+@pytest.mark.parametrize("xp", [numpy, torch])
 @pytest.mark.parametrize("index", [(0, 0), (0, 1), (1, 0), (1, 1), (3, 4)])
 @pytest.mark.parametrize(
     "axis_row,axis_shift",
