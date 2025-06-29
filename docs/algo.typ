@@ -1,10 +1,33 @@
+#import "@preview/pavemat:0.2.0": pavemat
+#set page(height: 240pt, width: 400pt, fill: black)
+#set text(fill: white)
+
+
 $
-  (
-    a_0, a_1, a_2
-  ) &->_"repeat" mat(a_0, a_1, a_2; a_0, a_1, a_2; a_0, a_1, a_2) ->_"pad" mat(a_0, a_1, a_2, 0, 0; a_0, a_1, a_2, 0, 0; a_0, a_1, a_2, 0, 0) \
-  &->_"flatten" (
-    a_0, a_1, a_2, 0, 0, a_0, a_1, a_2, 0, 0, a_0, a_1, a_2, 0, 0
+  pavemat(
+  mat(a_(0 0), a_(0 1), a_(0 2); a_(1 0), a_(1 1), a_(1 2); a_(2 0), a_(2 1), a_(2 2))
+  )
+   &->_"pad"
+   pavemat(
+   mat(a_(0 0), a_(0 1), a_(0 2), 0, 0; a_(1 0), a_(1 1), a_(1 2), 0, 0; a_(2 0), a_(2 1), a_(2 2), 0, 0),
+   pave: "dddDDSSSAAWWW"
+   )
+    \
+  &->_"flatten"
+  pavemat(
+  mat(
+    a_(0 0), a_(0 1), a_(0 2), 0, 0, a_(1 0), a_(1 1), a_(1 2), 0, 0, a_(2 0), a_(2 1), a_(2 2), 0, 0
+  ),
+  pave: "dddddSdddddWddSDDDWAAA"
   ) \
-  &->_"(slice)" (a_0, a_1, a_2, 0, 0, a_0, a_1, a_2, 0, 0, a_0, a_1) \
-  &->_"reshape" mat(a_0, a_1, a_2, 0;0, a_0, a_1, a_2; 0, 0, a_0, a_1) ->_"(slice)" mat(a_0, a_1, a_2; 0, a_0, a_1; 0, 0, a_0) =: C, B := mat(a_0, a_1, a_2; a_1, a_0, a_1; a_2, a_1, a_0) = C + C^T - a_0 I
+  &->_"slice []"
+  pavemat(
+  mat(a_(0 0), a_(0 1), a_(0 2), 0, 0, a_(1 0), a_(1 1), a_(1 2), 0, 0, a_(2 0), a_(2 1)),
+  pave: "ddddSddddW"
+  ) \
+  &->_"reshape"
+  pavemat(
+  mat(a_(0 0), a_(0 1), a_(0 2), 0;0, a_(1 0), a_(1 1), a_(1 2); 0, 0, a_(2 0), a_(2 1)),
+  pave: "dddDSSSAWWW") \
+  &->_"(slice)" mat(a_(0 0), a_(0 1), a_(0 2); 0, a_(1 0), a_(1 1); 0, 0, a_(2 0))
 $

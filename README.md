@@ -64,6 +64,14 @@ print(shifted)
  [0 0 7]]
 ```
 
+## Benchmark
+
+![Benchmark](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/benchmark.webp)
+
+## Algorithm
+
+![Algorithm](https://raw.githubusercontent.com/34j/shift-nth-row-n-steps/main/docs/algo.png)
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
