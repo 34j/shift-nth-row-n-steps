@@ -1353,7 +1353,7 @@ wheels = [
 
 [[package]]
 name = "shift-nth-row-n-steps"
-version = "0.0.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "array-api-compat" },

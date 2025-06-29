@@ -1,4 +1,4 @@
-__version__ = "0.2.11"
+__version__ = "0.3.0"
 from ._main import shift_nth_row_n_steps
 from ._torch_like import create_slice, narrow, select, take_slice
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.0 (2025-06-29)
+
+### Bug fixes
+
+- Fix wrong docs ([`1f25414`](https://github.com/34j/shift-nth-row-n-steps/commit/1f254141b29adfa47ee6178ac18148c62b89cca8))
+
+### Features
+
+- Add multidimentional tests and fix multiple issues (#48) ([`a9ef0dd`](https://github.com/34j/shift-nth-row-n-steps/commit/a9ef0ddd7b350f996ebcfdbe9b747577f231e100))
+
 ## v0.2.11 (2025-05-26)
 
 ### Bug fixes
