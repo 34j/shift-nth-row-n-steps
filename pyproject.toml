@@ -4,7 +4,7 @@ requires = [ "setuptools" ]
 
 [project]
 name = "shift-nth-row-n-steps"
-version = "0.3.0"
+version = "1.0.0"
 description = "Shift Nth row N steps in NumPy / PyTorch / TensorFlow / JAX"
 readme = "README.md"
 license = { text = "MIT" }
