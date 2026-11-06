@@ -33,43 +33,33 @@ def test_shift_nth_row_n_steps_manual_match(
     func: Any,
     xp: ArrayNamespace,
 ) -> None:
-    input = xp.asarray([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]])
+    array = xp.asarray([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]])
     if mode == "fill":
-        expected = xp.asarray(
-            [[[1, 2, 3, 4, 0, 0], [0, 5, 6, 7, 8, 0], [0, 0, 9, 10, 11, 12]]]
-        )
+        expected = xp.asarray([[[1, 2, 3, 4, 0, 0], [0, 5, 6, 7, 8, 0], [0, 0, 9, 10, 11, 12]]])
     elif mode == "roll":
-        expected = xp.asarray(
-            [[[1, 2, 3, 4, 1, 2], [3, 5, 6, 7, 8, 5], [6, 7, 9, 10, 11, 12]]]
-        )
+        expected = xp.asarray([[[1, 2, 3, 4, 1, 2], [3, 5, 6, 7, 8, 5], [6, 7, 9, 10, 11, 12]]])
     elif mode == "abs":
-        expected = xp.asarray(
-            [[[1, 2, 3, 4, 3, 2], [1, 5, 6, 7, 8, 7], [6, 5, 9, 10, 11, 12]]]
-        )
+        expected = xp.asarray([[[1, 2, 3, 4, 3, 2], [1, 5, 6, 7, 8, 7], [6, 5, 9, 10, 11, 12]]])
     if cut_padding:
         expected = expected[:, :, :4]
-    if mode != "fill" and func in [
+    if mode != "fill" and func in {
         shift_nth_row_n_steps_for_loop_assign,
         shift_nth_row_n_steps_for_loop_concat,
         shift_nth_row_n_steps_advanced_indexing,
-    ]:
+    }:
         pytest.skip("Not implemented")
 
     assert xp.all(
         xpx.isclose(
-            func(input, cut_padding=cut_padding, mode=mode, fill_values=0),
+            func(array, cut_padding=cut_padding, mode=mode, fill_values=0),
             expected,
         )
     )
 
 
 @pytest.mark.parametrize("xp", [numpy, torch])
-@pytest.mark.parametrize(
-    "shape", [(1, 1, 1), (1, 1, 2), (1, 2, 1), (2, 7, 4), (2, 4, 7)]
-)
-@pytest.mark.parametrize(
-    "axis_row,axis_shift", [(-1, -2), (-2, -1), (-3, -1), (-1, -3)]
-)
+@pytest.mark.parametrize("shape", [(1, 1, 1), (1, 1, 2), (1, 2, 1), (2, 7, 4), (2, 4, 7)])
+@pytest.mark.parametrize(("axis_row", "axis_shift"), [(-1, -2), (-2, -1), (-3, -1), (-1, -3)])
 @pytest.mark.parametrize("cut_padding", [True, False])
 def test_shift_nth_row_n_steps(
     shape: tuple[int, ...],
@@ -102,7 +92,7 @@ def test_shift_nth_row_n_steps(
 @pytest.mark.parametrize("xp", [numpy, torch])
 @pytest.mark.parametrize("index", [(0, 0), (0, 1), (1, 0), (1, 1), (3, 4)])
 @pytest.mark.parametrize(
-    "axis_row,axis_shift",
+    ("axis_row", "axis_shift"),
     [(0, 1), (1, 0), (-2, -1), (-1, -2), (-3, -1), (-1, -3), (-2, -3), (-3, -2)],
 )
 def test_shift_nth_row_n_steps_index(
@@ -110,12 +100,10 @@ def test_shift_nth_row_n_steps_index(
 ) -> None:
     shape = (5, 6, 7)
     array = xp.reshape(xp.arange(prod(shape)), shape)
-    res = shift_nth_row_n_steps(
-        array, axis_row=axis_row, axis_shift=axis_shift, cut_padding=False
+    res = shift_nth_row_n_steps(array, axis_row=axis_row, axis_shift=axis_shift, cut_padding=False)
+    assert res.shape[axis_shift] == array.shape[axis_shift] + array.shape[axis_row] - 1, (
+        f"{array.shape=}, {res.shape=}"
     )
-    assert (
-        res.shape[axis_shift] == array.shape[axis_shift] + array.shape[axis_row] - 1
-    ), f"{array.shape=}, {res.shape=}"
     assert res.shape[:axis_shift] == array.shape[:axis_shift]
     if axis_shift != -1:
         assert res.shape[axis_shift + 1 :] == array.shape[axis_shift + 1 :]
@@ -137,7 +125,7 @@ def test_shift_nth_row_n_steps_index(
 
 # def test_custom_padding() -> None:
 #     raise SkipTest("Not implemented yet")
-#     n = 4  # type: ignore
+#     n = 4
 #     array = xp.random.random_uniform(shape=(n,)).expand_dims(axis=0).repeat(n, axis=0)
 #     res_const = shift_nth_row_n_steps(
 #         array,

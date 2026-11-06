@@ -56,6 +56,12 @@ docs = [
 
 [tool.ruff]
 extend = ".venv/ruff.toml"
+# These legacy and compatibility APIs intentionally accept unused parameters.
+lint.extend-per-file-ignores."src/shift_nth_row_n_steps/_main.py" = [ "ARG001" ]
+# The benchmark must continue after backend/device failures and is intentionally nested.
+lint.extend-per-file-ignores."src/shift_nth_row_n_steps/cli.py" = [ "BLE001", "PLR1702" ]
+# Tests exercise implementation modules directly and invoke a fixed local module.
+lint.extend-per-file-ignores."tests/**/*" = [ "PLC2701", "S603" ]
 
 [tool.pyproject-fmt]
 max_supported_python = "3.14"

@@ -13,14 +13,14 @@ def setup() -> None:
 
 
 def test_select() -> None:
-    import torch
+    import torch  # noqa: PLC0415
 
-    input = torch.randn(3, 4, 5)
-    assert torch.equal(select(input, 0, axis=0), torch.select(input, 0, 0))
+    array = torch.randn(3, 4, 5)
+    assert torch.equal(select(array, 0, axis=0), torch.select(array, 0, 0))
 
 
 def test_narrow() -> None:
-    import torch
+    import torch  # noqa: PLC0415
 
-    input = torch.randn(3, 4, 5)
-    assert torch.equal(narrow(input, 1, 2, axis=0), torch.narrow(input, 0, 1, 2))
+    array = torch.randn(3, 4, 5)
+    assert torch.equal(narrow(array, 1, 2, axis=0), torch.narrow(array, 0, 1, 2))

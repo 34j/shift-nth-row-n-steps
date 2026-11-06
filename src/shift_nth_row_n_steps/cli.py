@@ -7,7 +7,7 @@ from aquarel import load_theme
 from array_api_compat import numpy, torch
 from cm_time import timer
 from pandas import DataFrame
-from rich import print
+from rich import print as rich_print
 
 from ._main import (
     shift_nth_row_n_steps,
@@ -28,10 +28,6 @@ def benchmark(
 
     Parameters
     ----------
-    backend : str, optional
-        The backend to use, by default typer.Option("numpy")
-    device : str, optional
-        The device to use, by default typer.Option("cpu")
     dtype : str, optional
         The dtype to use, by default typer.Option("float32")
     n_end : int, optional
@@ -53,36 +49,31 @@ def benchmark(
                 try:
                     n = 2**i
                     rng = np.random.default_rng()
-                    input = rng.uniform(size=(n, n))
-                    input = xp.asarray(input, dtype=getattr(xp, dtype), device=device)
+                    array = rng.uniform(size=(n, n))
+                    array = xp.asarray(array, dtype=getattr(xp, dtype), device=device)
                     with timer() as t1:
                         for _ in range(n_iter):
-                            input = shift_nth_row_n_steps(input, cut_padding=True)
+                            array = shift_nth_row_n_steps(array, cut_padding=True)
                     with timer() as t2:
                         for _ in range(n_iter):
-                            input = shift_nth_row_n_steps_advanced_indexing(input)
-                    print(
-                        f"{n}: propsed: {t1.elapsed:g}, "
-                        f"advanced indexing: {t2.elapsed:g}"
-                    )
-                    res.append(
+                            array = shift_nth_row_n_steps_advanced_indexing(array)
+                    rich_print(f"{n}: propsed: {t1.elapsed:g}, advanced indexing: {t2.elapsed:g}")
+                    res.extend([
                         {
                             "n": n,
                             "type": "Proposed Method",
                             "time": t1.elapsed / n_iter,
                             "backend": name,
                             "device": device,
-                        }
-                    )
-                    res.append(
+                        },
                         {
                             "n": n,
                             "type": "Advanced Indexing",
                             "time": t2.elapsed / n_iter,
                             "backend": name,
                             "device": device,
-                        }
-                    )
+                        },
+                    ])
                 except Exception as e:
                     warnings.warn(
                         f"Failed to run on {name} with {device} for n={n}: {e}",
