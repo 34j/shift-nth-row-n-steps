@@ -13,8 +13,8 @@ def create_slice(
     default: int
     | slice
     | EllipsisType
-    | None
-    | Callable[[], int | slice | EllipsisType | None] = lambda: slice(None),
+    | Callable[[], int | slice | EllipsisType | None]
+    | None = lambda: slice(None),
 ) -> tuple[int | slice | EllipsisType | None, ...]:
     """
     Create a slice tuple with default values.
@@ -34,10 +34,7 @@ def create_slice(
         The slice tuple.
 
     """
-    if isinstance(default, Callable):  # type: ignore
-        default_ = default()  # type: ignore
-    else:
-        default_ = default
+    default_ = default() if isinstance(default, Callable) else default
     result = [default_] * ndim
     for axis, key in axis_and_key:
         result[axis] = key
@@ -66,7 +63,7 @@ def take_slice(a: Array, start: int, end: int, *, axis: int) -> Array:
 
     """
     ndim = a.ndim
-    axis = axis % ndim
+    axis %= ndim
     return a[create_slice(ndim, [(axis, slice(start, end))])]
 
 
@@ -114,7 +111,7 @@ def select(a: Array, index: int, *, axis: int) -> Array:
 
     """
     ndim = a.ndim
-    axis = axis % ndim
+    axis %= ndim
     return a[create_slice(ndim, [(axis, index)])]
 
 

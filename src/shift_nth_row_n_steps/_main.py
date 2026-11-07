@@ -59,12 +59,17 @@ def shift_nth_row_n_steps_for_loop_assign(
         the output will be (..., row, ..., shift + row - 1, ...).
         [...,i,...,j,...] -> [...,i,...,j+i,...]
 
+    Raises
+    ------
+    ValueError
+        If ``axis_row`` and ``axis_shift`` refer to the same axis.
+
     """
     xp = array_namespace(a)
     input_shape = list(a.shape)
     ndim = len(input_shape)
-    axis_row = axis_row % ndim
-    axis_shift = axis_shift % ndim
+    axis_row %= ndim
+    axis_shift %= ndim
     if axis_row == axis_shift:
         raise ValueError("axis_row and axis_shift should not be the same.")
     row_len = input_shape[axis_row]
@@ -83,9 +88,7 @@ def shift_nth_row_n_steps_for_loop_assign(
             if i >= shift_len:
                 break
             output[
-                create_slice(
-                    ndim, [(axis_row, slice(i, i + 1)), (axis_shift, slice(i, None))]
-                )
+                create_slice(ndim, [(axis_row, slice(i, i + 1)), (axis_shift, slice(i, None))])
             ] = take_slice(row, 0, shift_len - i, axis=axis_shift)
         else:
             output[
@@ -181,8 +184,7 @@ def shift_nth_row_n_steps_for_loop_concat(
                 axis=axis_shift,
             ).squeeze(axis=axis_row)
         outputs.append(output)
-    output = xp.stack(outputs, axis=axis_row)
-    return output
+    return xp.stack(outputs, axis=axis_row)
 
 
 def shift_nth_row_n_steps_advanced_indexing(
@@ -237,9 +239,7 @@ def shift_nth_row_n_steps_advanced_indexing(
     shape = a.shape
     i_row = xp.arange(shape[axis_row_])[:, None]
     i_shift = (
-        xp.arange(shape[axis_shift_] + (0 if cut_padding else shape[axis_row_] - 1))[
-            None, :
-        ]
+        xp.arange(shape[axis_shift_] + (0 if cut_padding else shape[axis_row_] - 1))[None, :]
         - i_row
     )
     i_shift = xp.clip(i_shift, -1, shape[axis_shift_])
@@ -252,9 +252,7 @@ def shift_nth_row_n_steps_advanced_indexing(
             default=slice(None),
         )
     ]
-    a = xpx.at(
-        a, create_slice(len(shape) - 1, [(-1, i_shift == -1)], default=slice(None))
-    ).set(0)
+    a = xpx.at(a, create_slice(len(shape) - 1, [(-1, i_shift == -1)], default=slice(None))).set(0)
     return xp.moveaxis(a, (axis_row_, axis_shift_), (axis_row, axis_shift))
 
 
