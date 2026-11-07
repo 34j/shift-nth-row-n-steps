@@ -24,7 +24,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-  "array-api-compat>=1.11.2",
+  "array-api-compat>=1.16.0",
   "cm-time>=0.1.2",
   "rich>=10",
   "typer>=0.15",
