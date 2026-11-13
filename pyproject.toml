@@ -43,7 +43,7 @@ dev = [
   "array-api-extra>=0.8",
   "coverage",
   "matplotlib>=3.10.3",
-  "numpy>=2.2.6",
+  "numpy>=2.5.4",
   "packaging-34j[test]",
   "pandas>=2.3",
   "seaborn>=0.13.2",
