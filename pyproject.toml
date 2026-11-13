@@ -27,7 +27,7 @@ dependencies = [
   "array-api-compat>=1.11.2",
   "cm-time>=0.1.2",
   "rich>=10",
-  "typer>=0.15",
+  "typer>=0.29.1",
   "types-array-api>=1.1.3",
   "typing-extensions>=4.14",
 ]
